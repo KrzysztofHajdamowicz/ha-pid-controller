@@ -1,6 +1,6 @@
 # ha-pid-controller
 
-Home Assistant custom integration (domain `pid_controller`): a multi-instance PID controller helper set up with a config flow. Maintained fork of soloam/ha-pid-controller.
+Home Assistant custom integration (domain `pid_controller`): a multi-instance PID controller set up with a config flow (`integration_type: service`, listed under Integrations rather than Helpers). Maintained fork of soloam/ha-pid-controller.
 
 ## Layout
 

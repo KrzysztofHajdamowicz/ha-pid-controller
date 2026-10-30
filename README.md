@@ -7,7 +7,7 @@
 
 *Please :star: this repo if you find it useful.*
 
-A PID controller helper: it reads a numeric entity (a temperature, PM2.5 or humidity sensor) and calculates an output that drives it towards a set point. Use the output to set a fan speed, a valve position, a heater power or anything else that takes a number.
+A PID controller integration: it reads a numeric entity (a temperature, PM2.5 or humidity sensor) and calculates an output that drives it towards a set point. Use the output to set a fan speed, a valve position, a heater power or anything else that takes a number.
 
 [![Open your Home Assistant instance and open this repository in the Home Assistant Community Store.][hacs-button]][hacs-link]
 [![Open your Home Assistant instance and start setting up a new PID controller.][setup-button]][setup-link]
@@ -18,7 +18,7 @@ A PID controller helper: it reads a numeric entity (a temperature, PM2.5 or humi
 
 ## Breaking changes in v2.0.0
 
-- The controller is set up in the UI (**Settings → Devices & services → Helpers → Create helper → PID Controller**). The `sensor: - platform: pid_controller` YAML configuration is **imported automatically** on the first start and then has to be removed, see [Migrating from v1](#migrating-from-v1-yaml).
+- The controller is set up in the UI (**Settings → Devices & services → Add integration → PID Controller**). The `sensor: - platform: pid_controller` YAML configuration is **imported automatically** on the first start and then has to be removed, see [Migrating from v1](#migrating-from-v1-yaml).
 - The set point, gains and limits are entities of the controller instead of templates.
 - The `pid_controller.reset_pid` and `pid_controller.autotune_pid` actions are gone: use the **Reset** button. Autotune never worked.
 - Requires Home Assistant 2026.9 or newer.
@@ -29,13 +29,13 @@ A PID controller helper: it reads a numeric entity (a temperature, PM2.5 or humi
 
 1. Click the **Open in HACS** button above, or add `https://github.com/KrzysztofHajdamowicz/ha-pid-controller` as a custom repository of type *Integration*.
 2. Download **PID Controller** and restart Home Assistant.
-3. Click the **Add helper** button above, or go to **Settings → Devices & services → Helpers → Create helper → PID Controller**.
+3. Click the **Add integration** button above, or go to **Settings → Devices & services → Add integration → PID Controller**.
 
 ### Manual installation
 
 1. Download `pid_controller.zip` from the [latest release][releases].
 2. Unpack it into `<config>/custom_components/pid_controller/`.
-3. Restart Home Assistant and add the helper as described above.
+3. Restart Home Assistant and add the integration as described above.
 
 ## Configuration
 
@@ -147,7 +147,7 @@ Then:
 
 ## Removal
 
-Delete the controller in **Settings → Devices & services → Helpers**, then remove the integration in HACS and restart Home Assistant.
+Delete the controller in **Settings → Devices & services → PID Controller**, then remove the integration in HACS and restart Home Assistant.
 
 ## Contributing
 
