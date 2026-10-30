@@ -49,7 +49,7 @@
     'state': 'unknown',
   })
 # ---
-# name: test_entities[number][number.air_purifier_derivative_gain-entry]
+# name: test_entities[number][number.air_purifier_gain_d-entry]
   EntityRegistryEntrySnapshot({
     'aliases': list([
       None,
@@ -68,7 +68,7 @@
     'disabled_by': None,
     'domain': 'number',
     'entity_category': <EntityCategory.CONFIG: 'config'>,
-    'entity_id': 'number.air_purifier_derivative_gain',
+    'entity_id': 'number.air_purifier_gain_d',
     'has_entity_name': True,
     'hidden_by': None,
     'icon': None,
@@ -76,12 +76,12 @@
     'labels': set({
     }),
     'name': None,
-    'object_id_base': 'Derivative gain',
+    'object_id_base': 'Gain D',
     'options': dict({
     }),
     'original_device_class': None,
     'original_icon': None,
-    'original_name': 'Derivative gain',
+    'original_name': 'Gain D',
     'platform': 'pid_controller',
     'previous_unique_id': None,
     'suggested_object_id': None,
@@ -91,24 +91,24 @@
     'unit_of_measurement': None,
   })
 # ---
-# name: test_entities[number][number.air_purifier_derivative_gain-state]
+# name: test_entities[number][number.air_purifier_gain_d-state]
   StateSnapshot({
     'attributes': ReadOnlyDict({
-      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Derivative gain',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Gain D',
       <NumberEntityCapabilityAttribute.MAX: 'max'>: 1000000,
       <NumberEntityCapabilityAttribute.MIN: 'min'>: 0,
       <NumberEntityCapabilityAttribute.MODE: 'mode'>: <NumberMode.BOX: 'box'>,
       <NumberEntityCapabilityAttribute.STEP: 'step'>: 0.0001,
     }),
     'context': <ANY>,
-    'entity_id': 'number.air_purifier_derivative_gain',
+    'entity_id': 'number.air_purifier_gain_d',
     'last_changed': <ANY>,
     'last_reported': <ANY>,
     'last_updated': <ANY>,
     'state': '0.0',
   })
 # ---
-# name: test_entities[number][number.air_purifier_integral_gain-entry]
+# name: test_entities[number][number.air_purifier_gain_i-entry]
   EntityRegistryEntrySnapshot({
     'aliases': list([
       None,
@@ -127,7 +127,7 @@
     'disabled_by': None,
     'domain': 'number',
     'entity_category': <EntityCategory.CONFIG: 'config'>,
-    'entity_id': 'number.air_purifier_integral_gain',
+    'entity_id': 'number.air_purifier_gain_i',
     'has_entity_name': True,
     'hidden_by': None,
     'icon': None,
@@ -135,12 +135,12 @@
     'labels': set({
     }),
     'name': None,
-    'object_id_base': 'Integral gain',
+    'object_id_base': 'Gain I',
     'options': dict({
     }),
     'original_device_class': None,
     'original_icon': None,
-    'original_name': 'Integral gain',
+    'original_name': 'Gain I',
     'platform': 'pid_controller',
     'previous_unique_id': None,
     'suggested_object_id': None,
@@ -150,21 +150,80 @@
     'unit_of_measurement': None,
   })
 # ---
-# name: test_entities[number][number.air_purifier_integral_gain-state]
+# name: test_entities[number][number.air_purifier_gain_i-state]
   StateSnapshot({
     'attributes': ReadOnlyDict({
-      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Integral gain',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Gain I',
       <NumberEntityCapabilityAttribute.MAX: 'max'>: 1000000,
       <NumberEntityCapabilityAttribute.MIN: 'min'>: 0,
       <NumberEntityCapabilityAttribute.MODE: 'mode'>: <NumberMode.BOX: 'box'>,
       <NumberEntityCapabilityAttribute.STEP: 'step'>: 0.0001,
     }),
     'context': <ANY>,
-    'entity_id': 'number.air_purifier_integral_gain',
+    'entity_id': 'number.air_purifier_gain_i',
     'last_changed': <ANY>,
     'last_reported': <ANY>,
     'last_updated': <ANY>,
     'state': '0.0',
+  })
+# ---
+# name: test_entities[number][number.air_purifier_gain_p-entry]
+  EntityRegistryEntrySnapshot({
+    'aliases': list([
+      None,
+    ]),
+    'area_id': None,
+    'capabilities': dict({
+      <NumberEntityCapabilityAttribute.MAX: 'max'>: 1000000,
+      <NumberEntityCapabilityAttribute.MIN: 'min'>: 0,
+      <NumberEntityCapabilityAttribute.MODE: 'mode'>: <NumberMode.BOX: 'box'>,
+      <NumberEntityCapabilityAttribute.STEP: 'step'>: 0.0001,
+    }),
+    'config_entry_id': <ANY>,
+    'config_subentry_id': <ANY>,
+    'device_class': None,
+    'device_id': <ANY>,
+    'disabled_by': None,
+    'domain': 'number',
+    'entity_category': <EntityCategory.CONFIG: 'config'>,
+    'entity_id': 'number.air_purifier_gain_p',
+    'has_entity_name': True,
+    'hidden_by': None,
+    'icon': None,
+    'id': <ANY>,
+    'labels': set({
+    }),
+    'name': None,
+    'object_id_base': 'Gain P',
+    'options': dict({
+    }),
+    'original_device_class': None,
+    'original_icon': None,
+    'original_name': 'Gain P',
+    'platform': 'pid_controller',
+    'previous_unique_id': None,
+    'suggested_object_id': None,
+    'supported_features': 0,
+    'translation_key': 'proportional',
+    'unique_id': '01PIDCONTROLLERTESTENTRY_proportional',
+    'unit_of_measurement': None,
+  })
+# ---
+# name: test_entities[number][number.air_purifier_gain_p-state]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Gain P',
+      <NumberEntityCapabilityAttribute.MAX: 'max'>: 1000000,
+      <NumberEntityCapabilityAttribute.MIN: 'min'>: 0,
+      <NumberEntityCapabilityAttribute.MODE: 'mode'>: <NumberMode.BOX: 'box'>,
+      <NumberEntityCapabilityAttribute.STEP: 'step'>: 0.0001,
+    }),
+    'context': <ANY>,
+    'entity_id': 'number.air_purifier_gain_p',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '1.0',
   })
 # ---
 # name: test_entities[number][number.air_purifier_maximum-entry]
@@ -342,65 +401,6 @@
     'last_reported': <ANY>,
     'last_updated': <ANY>,
     'state': '2.0',
-  })
-# ---
-# name: test_entities[number][number.air_purifier_proportional_gain-entry]
-  EntityRegistryEntrySnapshot({
-    'aliases': list([
-      None,
-    ]),
-    'area_id': None,
-    'capabilities': dict({
-      <NumberEntityCapabilityAttribute.MAX: 'max'>: 1000000,
-      <NumberEntityCapabilityAttribute.MIN: 'min'>: 0,
-      <NumberEntityCapabilityAttribute.MODE: 'mode'>: <NumberMode.BOX: 'box'>,
-      <NumberEntityCapabilityAttribute.STEP: 'step'>: 0.0001,
-    }),
-    'config_entry_id': <ANY>,
-    'config_subentry_id': <ANY>,
-    'device_class': None,
-    'device_id': <ANY>,
-    'disabled_by': None,
-    'domain': 'number',
-    'entity_category': <EntityCategory.CONFIG: 'config'>,
-    'entity_id': 'number.air_purifier_proportional_gain',
-    'has_entity_name': True,
-    'hidden_by': None,
-    'icon': None,
-    'id': <ANY>,
-    'labels': set({
-    }),
-    'name': None,
-    'object_id_base': 'Proportional gain',
-    'options': dict({
-    }),
-    'original_device_class': None,
-    'original_icon': None,
-    'original_name': 'Proportional gain',
-    'platform': 'pid_controller',
-    'previous_unique_id': None,
-    'suggested_object_id': None,
-    'supported_features': 0,
-    'translation_key': 'proportional',
-    'unique_id': '01PIDCONTROLLERTESTENTRY_proportional',
-    'unit_of_measurement': None,
-  })
-# ---
-# name: test_entities[number][number.air_purifier_proportional_gain-state]
-  StateSnapshot({
-    'attributes': ReadOnlyDict({
-      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Proportional gain',
-      <NumberEntityCapabilityAttribute.MAX: 'max'>: 1000000,
-      <NumberEntityCapabilityAttribute.MIN: 'min'>: 0,
-      <NumberEntityCapabilityAttribute.MODE: 'mode'>: <NumberMode.BOX: 'box'>,
-      <NumberEntityCapabilityAttribute.STEP: 'step'>: 0.0001,
-    }),
-    'context': <ANY>,
-    'entity_id': 'number.air_purifier_proportional_gain',
-    'last_changed': <ANY>,
-    'last_reported': <ANY>,
-    'last_updated': <ANY>,
-    'state': '1.0',
   })
 # ---
 # name: test_entities[number][number.air_purifier_sample_time-entry]
@@ -700,62 +700,6 @@
     'state': '0.0',
   })
 # ---
-# name: test_entities[sensor][sensor.air_purifier_derivative_term-entry]
-  EntityRegistryEntrySnapshot({
-    'aliases': list([
-      None,
-    ]),
-    'area_id': None,
-    'capabilities': dict({
-      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
-    }),
-    'config_entry_id': <ANY>,
-    'config_subentry_id': <ANY>,
-    'device_class': None,
-    'device_id': <ANY>,
-    'disabled_by': None,
-    'domain': 'sensor',
-    'entity_category': <EntityCategory.DIAGNOSTIC: 'diagnostic'>,
-    'entity_id': 'sensor.air_purifier_derivative_term',
-    'has_entity_name': True,
-    'hidden_by': None,
-    'icon': None,
-    'id': <ANY>,
-    'labels': set({
-    }),
-    'name': None,
-    'object_id_base': 'Derivative term',
-    'options': dict({
-      'sensor': dict({
-        'suggested_display_precision': 3,
-      }),
-    }),
-    'original_device_class': None,
-    'original_icon': None,
-    'original_name': 'Derivative term',
-    'platform': 'pid_controller',
-    'previous_unique_id': None,
-    'suggested_object_id': None,
-    'supported_features': 0,
-    'translation_key': 'd_term',
-    'unique_id': '01PIDCONTROLLERTESTENTRY_d_term',
-    'unit_of_measurement': None,
-  })
-# ---
-# name: test_entities[sensor][sensor.air_purifier_derivative_term-state]
-  StateSnapshot({
-    'attributes': ReadOnlyDict({
-      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Derivative term',
-      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
-    }),
-    'context': <ANY>,
-    'entity_id': 'sensor.air_purifier_derivative_term',
-    'last_changed': <ANY>,
-    'last_reported': <ANY>,
-    'last_updated': <ANY>,
-    'state': '0.0',
-  })
-# ---
 # name: test_entities[sensor][sensor.air_purifier_error-entry]
   EntityRegistryEntrySnapshot({
     'aliases': list([
@@ -812,7 +756,7 @@
     'state': '-20.0',
   })
 # ---
-# name: test_entities[sensor][sensor.air_purifier_integral_term-entry]
+# name: test_entities[sensor][sensor.air_purifier_term_d-entry]
   EntityRegistryEntrySnapshot({
     'aliases': list([
       None,
@@ -828,7 +772,7 @@
     'disabled_by': None,
     'domain': 'sensor',
     'entity_category': <EntityCategory.DIAGNOSTIC: 'diagnostic'>,
-    'entity_id': 'sensor.air_purifier_integral_term',
+    'entity_id': 'sensor.air_purifier_term_d',
     'has_entity_name': True,
     'hidden_by': None,
     'icon': None,
@@ -836,7 +780,7 @@
     'labels': set({
     }),
     'name': None,
-    'object_id_base': 'Integral term',
+    'object_id_base': 'Term D',
     'options': dict({
       'sensor': dict({
         'suggested_display_precision': 3,
@@ -844,7 +788,63 @@
     }),
     'original_device_class': None,
     'original_icon': None,
-    'original_name': 'Integral term',
+    'original_name': 'Term D',
+    'platform': 'pid_controller',
+    'previous_unique_id': None,
+    'suggested_object_id': None,
+    'supported_features': 0,
+    'translation_key': 'd_term',
+    'unique_id': '01PIDCONTROLLERTESTENTRY_d_term',
+    'unit_of_measurement': None,
+  })
+# ---
+# name: test_entities[sensor][sensor.air_purifier_term_d-state]
+  StateSnapshot({
+    'attributes': ReadOnlyDict({
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Term D',
+      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
+    }),
+    'context': <ANY>,
+    'entity_id': 'sensor.air_purifier_term_d',
+    'last_changed': <ANY>,
+    'last_reported': <ANY>,
+    'last_updated': <ANY>,
+    'state': '0.0',
+  })
+# ---
+# name: test_entities[sensor][sensor.air_purifier_term_i-entry]
+  EntityRegistryEntrySnapshot({
+    'aliases': list([
+      None,
+    ]),
+    'area_id': None,
+    'capabilities': dict({
+      <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
+    }),
+    'config_entry_id': <ANY>,
+    'config_subentry_id': <ANY>,
+    'device_class': None,
+    'device_id': <ANY>,
+    'disabled_by': None,
+    'domain': 'sensor',
+    'entity_category': <EntityCategory.DIAGNOSTIC: 'diagnostic'>,
+    'entity_id': 'sensor.air_purifier_term_i',
+    'has_entity_name': True,
+    'hidden_by': None,
+    'icon': None,
+    'id': <ANY>,
+    'labels': set({
+    }),
+    'name': None,
+    'object_id_base': 'Term I',
+    'options': dict({
+      'sensor': dict({
+        'suggested_display_precision': 3,
+      }),
+    }),
+    'original_device_class': None,
+    'original_icon': None,
+    'original_name': 'Term I',
     'platform': 'pid_controller',
     'previous_unique_id': None,
     'suggested_object_id': None,
@@ -854,21 +854,21 @@
     'unit_of_measurement': None,
   })
 # ---
-# name: test_entities[sensor][sensor.air_purifier_integral_term-state]
+# name: test_entities[sensor][sensor.air_purifier_term_i-state]
   StateSnapshot({
     'attributes': ReadOnlyDict({
-      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Integral term',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Term I',
       <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
     }),
     'context': <ANY>,
-    'entity_id': 'sensor.air_purifier_integral_term',
+    'entity_id': 'sensor.air_purifier_term_i',
     'last_changed': <ANY>,
     'last_reported': <ANY>,
     'last_updated': <ANY>,
     'state': '0.0',
   })
 # ---
-# name: test_entities[sensor][sensor.air_purifier_proportional_term-entry]
+# name: test_entities[sensor][sensor.air_purifier_term_p-entry]
   EntityRegistryEntrySnapshot({
     'aliases': list([
       None,
@@ -884,7 +884,7 @@
     'disabled_by': None,
     'domain': 'sensor',
     'entity_category': <EntityCategory.DIAGNOSTIC: 'diagnostic'>,
-    'entity_id': 'sensor.air_purifier_proportional_term',
+    'entity_id': 'sensor.air_purifier_term_p',
     'has_entity_name': True,
     'hidden_by': None,
     'icon': None,
@@ -892,7 +892,7 @@
     'labels': set({
     }),
     'name': None,
-    'object_id_base': 'Proportional term',
+    'object_id_base': 'Term P',
     'options': dict({
       'sensor': dict({
         'suggested_display_precision': 3,
@@ -900,7 +900,7 @@
     }),
     'original_device_class': None,
     'original_icon': None,
-    'original_name': 'Proportional term',
+    'original_name': 'Term P',
     'platform': 'pid_controller',
     'previous_unique_id': None,
     'suggested_object_id': None,
@@ -910,14 +910,14 @@
     'unit_of_measurement': None,
   })
 # ---
-# name: test_entities[sensor][sensor.air_purifier_proportional_term-state]
+# name: test_entities[sensor][sensor.air_purifier_term_p-state]
   StateSnapshot({
     'attributes': ReadOnlyDict({
-      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Proportional term',
+      <EntityStateAttribute.FRIENDLY_NAME: 'friendly_name'>: 'Air purifier Term P',
       <SensorEntityCapabilityAttribute.STATE_CLASS: 'state_class'>: <SensorStateClass.MEASUREMENT: 'measurement'>,
     }),
     'context': <ANY>,
-    'entity_id': 'sensor.air_purifier_proportional_term',
+    'entity_id': 'sensor.air_purifier_term_p',
     'last_changed': <ANY>,
     'last_reported': <ANY>,
     'last_updated': <ANY>,

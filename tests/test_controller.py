@@ -147,7 +147,7 @@ async def test_disabled_outputs_minimum(
 
 async def test_on_off_mode(hass: HomeAssistant, loaded_entry: MockConfigEntry) -> None:
     """Without gains the controller switches between minimum and maximum."""
-    await _set_number(hass, "proportional_gain", 0)
+    await _set_number(hass, "gain_p", 0)
     assert _output(hass) == 0
     await _switch(hass, "invert", on=True)
     assert _output(hass) == 100
@@ -188,8 +188,8 @@ async def test_integral_runs_on_timer(
     """The integral keeps growing on the sample timer with a constant source."""
     set_source(hass, "0")
     await setup_entry(hass, mock_config_entry)
-    await _set_number(hass, "proportional_gain", 0)
-    await _set_number(hass, "integral_gain", 0.1)
+    await _set_number(hass, "gain_p", 0)
+    await _set_number(hass, "gain_i", 0.1)
     await _set_number(hass, "sample_time", 10)
     start = _output(hass)
 
