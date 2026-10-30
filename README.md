@@ -2,7 +2,9 @@
 
 A PID Controller allows you to target a set value and achieve that setting in a smoothly and mantinin it without fluctuations
 
-[![gh_release](https://img.shields.io/github/v/release/soloam/ha-pid-controller)](../../releases) [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration) [![gh_last_commit]](../../commits/master) [![buy_coffee_badge]](https://www.buymeacoffee.com/soloam)
+[![gh_release](https://img.shields.io/github/v/release/KrzysztofHajdamowicz/ha-pid-controller)](../../releases) [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration) [![gh_last_commit]](../../commits/dev)
+
+> **Maintained fork.** This is the maintained continuation of [soloam/ha-pid-controller](https://github.com/soloam/ha-pid-controller), which is no longer updated. Many thanks to Diogo Silva (@soloam) for the original work. v1.2.0 restores compatibility with Home Assistant 2025.5 and newer (tested on 2026.11).
 
 
 ![PID Graph][pid_graph]
@@ -206,7 +208,7 @@ To reduce the waving and the overshoot we can add some Derivate, to calculate th
 ![PID Phase 4][pid_phase4]
 
 ### Controlling Waveup
-The Integral part of the PID works by incrementing the error from the reading to increment the output. Sometime it can happen, if the error is too big that the incremental part scales the output way too far. To handle this you can set a maximum incremental value in the _waveup_ value.
+The Integral part of the PID works by incrementing the error from the reading to increment the output. Sometime it can happen, if the error is too big that the incremental part scales the output way too far. To handle this you can set a maximum incremental value in the _windup_ value.
 ### Debugging the PID
 You can look at the attributes of the sensor to the p|i|d variables, that should return the amount that each part is contributing to the PID output.
 # Inverted PID
@@ -217,7 +219,7 @@ The PID standard behavior is to output the power that would be needed to raise t
 [![buy_coffee]](https://www.buymeacoffee.com/soloam)
 
 ***
-[gh_last_commit]: https://img.shields.io/github/last-commit/soloam/ha-pid-controller
+[gh_last_commit]: https://img.shields.io/github/last-commit/KrzysztofHajdamowicz/ha-pid-controller
 [pid_graph]: https://raw.githubusercontent.com/soloam/ha-pid-controller/master/resources/pid_graph.png
 [pid_phase1]: https://raw.githubusercontent.com/soloam/ha-pid-controller/master/resources/pip_phase1.png
 [pid_phase2]: https://raw.githubusercontent.com/soloam/ha-pid-controller/master/resources/pip_phase2.png
