@@ -24,6 +24,7 @@ from homeassistant.const import (
 from homeassistant.core import callback
 from homeassistant.helpers import config_validation as cv, issue_registry as ir
 from homeassistant.helpers.restore_state import ExtraStoredData, RestoreEntity
+from homeassistant.helpers.start import async_at_started
 import probatio
 
 from .const import CONF_SOURCE, DOMAIN
@@ -105,25 +106,32 @@ async def async_setup_platform(
     discovery_info: DiscoveryInfoType | None = None,  # noqa: ARG001
 ) -> None:
     """Import a controller from the legacy YAML sensor platform."""
-    import_data, warnings = await async_convert_legacy_config(hass, config)
-    result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_IMPORT}, data=import_data
-    )
-    imported = result.get("type") == "create_entry"
-    name = import_data[CONF_NAME]
-    ir.async_create_issue(
-        hass,
-        DOMAIN,
-        f"deprecated_yaml_{import_data[CONF_SOURCE]}_{name}",
-        is_fixable=False,
-        is_persistent=False,
-        severity=ir.IssueSeverity.WARNING,
-        translation_key="deprecated_yaml" if imported else "deprecated_yaml_exists",
-        translation_placeholders={
-            "name": name,
-            "warnings": "\n".join(f"- {warning}" for warning in warnings) or "-",
-        },
-    )
+
+    # The templates usually read helpers (input_number, input_boolean, ...)
+    # that restore their state during startup, so render them once Home
+    # Assistant has started.
+    async def _async_import(_hass: HomeAssistant) -> None:
+        import_data, warnings = await async_convert_legacy_config(hass, config)
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": SOURCE_IMPORT}, data=import_data
+        )
+        imported = result.get("type") == "create_entry"
+        name = import_data[CONF_NAME]
+        ir.async_create_issue(
+            hass,
+            DOMAIN,
+            f"deprecated_yaml_{import_data[CONF_SOURCE]}_{name}",
+            is_fixable=False,
+            is_persistent=False,
+            severity=ir.IssueSeverity.WARNING,
+            translation_key="deprecated_yaml" if imported else "deprecated_yaml_exists",
+            translation_placeholders={
+                "name": name,
+                "warnings": "\n".join(f"- {warning}" for warning in warnings) or "-",
+            },
+        )
+
+    async_at_started(hass, _async_import)
 
 
 class PIDOutputSensor(PIDEntity, SensorEntity, RestoreEntity):

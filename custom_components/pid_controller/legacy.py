@@ -47,6 +47,7 @@ LEGACY_TEMPLATE_KEYS: Final = {
     "round": CONF_ROUND,
 }
 LEGACY_UNIT: Final = "points"
+_BOOLEAN_STATES: Final = {"on", "off", "true", "false", "yes", "no", "1", "0"}
 
 
 async def async_convert_legacy_config(
@@ -110,7 +111,13 @@ def _convert(key: str, rendered: str | None) -> Any:
         raise ValueError(msg)
     match key:
         case "invert" | "enabled":
-            return bool(result_as_boolean(rendered))
+            # result_as_boolean() reads anything unknown as False, which would
+            # silently turn an unavailable helper into "off".
+            value = rendered.strip().lower()
+            if value not in _BOOLEAN_STATES:
+                msg = f"Not a boolean: {rendered}"
+                raise ValueError(msg)
+            return result_as_boolean(value)
         case "round":
             return RoundMode(rendered.strip().lower())
         case "precision":

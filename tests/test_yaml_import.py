@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -98,3 +98,48 @@ async def test_import_already_imported(hass: HomeAssistant) -> None:
     )
     assert issue is not None
     assert issue.translation_key == "deprecated_yaml_exists"
+
+
+async def test_import_waits_for_start(hass: HomeAssistant) -> None:
+    """Templates are rendered after startup, once helpers restored their state."""
+    hass.set_state(CoreState.not_running)
+    config = {
+        "platform": "pid_controller",
+        "name": "Salon",
+        "entity_id": "sensor.salon_pm25",
+        "invert": '{{ states("input_boolean.pid_salon_invert") }}',
+    }
+    assert await async_setup_component(hass, "sensor", {"sensor": [config]})
+    await hass.async_block_till_done()
+    assert not hass.config_entries.async_entries(DOMAIN)
+
+    # The helper restores its state during startup.
+    hass.states.async_set("input_boolean.pid_salon_invert", "on")
+    await hass.async_start()
+    await hass.async_block_till_done()
+
+    entries = hass.config_entries.async_entries(DOMAIN)
+    assert len(entries) == 1
+    assert entries[0].options["initial_values"]["invert"] is True
+
+
+async def test_import_unknown_boolean(hass: HomeAssistant) -> None:
+    """An unavailable boolean helper falls back to the default with a warning."""
+    config = {
+        "platform": "pid_controller",
+        "name": "Salon",
+        "entity_id": "sensor.salon_pm25",
+        "invert": '{{ states("input_boolean.missing") }}',
+    }
+    assert await async_setup_component(hass, "sensor", {"sensor": [config]})
+    await hass.async_block_till_done()
+
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+    assert entry.options["initial_values"]["invert"] is False
+    issue = ir.async_get(hass).async_get_issue(
+        DOMAIN, "deprecated_yaml_sensor.salon_pm25_Salon"
+    )
+    assert (
+        "invert: '{{ states(\"input_boolean.missing\") }}' gave 'unknown'"
+        in (issue.translation_placeholders["warnings"])
+    )
