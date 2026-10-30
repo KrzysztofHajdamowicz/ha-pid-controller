@@ -392,7 +392,7 @@ class PidController(SensorEntity):
         return int(DEFAULT_SAMPLE_TIME)
 
     @property
-    def windup(self) -> int:
+    def windup(self) -> float:
         """Returns Windup"""
 
         if self._windup_template is not None:
@@ -400,16 +400,16 @@ class PidController(SensorEntity):
                 windup = self._windup_template.async_render(parse_result=False)
             except (TemplateError, TypeError) as ex:
                 self.show_template_exception(ex, CONF_WINDUP)
-                return int(DEFAULT_WINDUP)
+                return float(DEFAULT_WINDUP)
 
             try:
-                windup = int(float(windup))
+                windup = float(windup)
             except ValueError:
-                windup = int(DEFAULT_WINDUP)
+                windup = float(DEFAULT_WINDUP)
 
-            return int(windup)
+            return windup
 
-        return int(DEFAULT_WINDUP)
+        return float(DEFAULT_WINDUP)
 
     @property
     def proportional(self) -> float:
