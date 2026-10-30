@@ -1,0 +1,97 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "A PID controller with this name already exists."
+    },
+    "error": {
+      "name_exists": "A PID controller with this name already exists."
+    },
+    "step": {
+      "user": {
+        "title": "Create a PID controller",
+        "description": "The controller reads the source entity and calculates an output that drives it towards the set point. The set point, gains and limits become entities of the controller, so they can be changed at any time and from automations.",
+        "data": {
+          "name": "Name",
+          "source": "Source entity",
+          "unit_of_measurement": "Output unit of measurement"
+        },
+        "data_description": {
+          "name": "Also used for the entity ID of the output sensor.",
+          "source": "The measured value, for example a temperature or PM2.5 sensor.",
+          "unit_of_measurement": "Optional unit of the output, for example % or level."
+        },
+        "sections": {
+          "initial_values": {
+            "name": "Initial values",
+            "description": "Starting values of the controller entities. You can change them later on the device page.",
+            "data": {
+              "set_point": "Set point",
+              "proportional": "Proportional gain (P)",
+              "integral": "Integral gain (I)",
+              "derivative": "Derivative gain (D)",
+              "minimum": "Output minimum",
+              "maximum": "Output maximum"
+            }
+          }
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "source": "Source entity",
+          "unit_of_measurement": "Output unit of measurement"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "output": { "name": "Output" },
+      "p_term": { "name": "Proportional term" },
+      "i_term": { "name": "Integral term" },
+      "d_term": { "name": "Derivative term" },
+      "error": { "name": "Error" }
+    },
+    "number": {
+      "set_point": { "name": "Set point" },
+      "proportional": { "name": "Proportional gain" },
+      "integral": { "name": "Integral gain" },
+      "derivative": { "name": "Derivative gain" },
+      "minimum": { "name": "Minimum" },
+      "maximum": { "name": "Maximum" },
+      "precision": { "name": "Precision" },
+      "sample_time": { "name": "Sample time" },
+      "windup": { "name": "Windup limit" }
+    },
+    "switch": {
+      "enabled": { "name": "Enabled" },
+      "invert": { "name": "Invert" }
+    },
+    "select": {
+      "round": {
+        "name": "Rounding",
+        "state": {
+          "round": "Round",
+          "floor": "Floor",
+          "ceil": "Ceil"
+        }
+      }
+    },
+    "button": {
+      "reset": { "name": "Reset" }
+    }
+  },
+  "issues": {
+    "deprecated_yaml": {
+      "title": "PID controller \"{name}\" was imported from YAML",
+      "description": "The YAML configuration of the PID controller \"{name}\" was imported into the UI. Its settings are now entities of the controller device.\n\n{warnings}\n\nRemove the `platform: pid_controller` entry from your YAML configuration and restart Home Assistant to fix this issue. Automations that changed the old helpers should now change the controller entities instead."
+    },
+    "deprecated_yaml_exists": {
+      "title": "PID controller \"{name}\" is still configured in YAML",
+      "description": "A PID controller named \"{name}\" already exists in the UI, so its YAML configuration was not imported again.\n\nRemove the `platform: pid_controller` entry from your YAML configuration and restart Home Assistant to fix this issue."
+    }
+  }
+}

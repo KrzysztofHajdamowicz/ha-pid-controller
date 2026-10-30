@@ -1,0 +1,105 @@
+# Integration Quality Scale self-assessment. Custom integrations are not
+# graded by Home Assistant; this file tracks the rules as a checklist.
+# https://contributors.home-assistant.io/core/quality-scale/rules/
+rules:
+  # Bronze
+  action-setup:
+    status: exempt
+    comment: The integration has no actions; the reset is a button entity.
+  appropriate-polling:
+    status: exempt
+    comment: Calculated helper, entities are pushed and never polled.
+  brands: done
+  common-modules: done
+  config-flow: done
+  config-flow-test-coverage: done
+  dependency-transparency:
+    status: exempt
+    comment: No external requirements.
+  docs-actions:
+    status: exempt
+    comment: No actions.
+  docs-conditions:
+    status: exempt
+    comment: No conditions.
+  docs-high-level-description: done
+  docs-installation-instructions: done
+  docs-removal-instructions: done
+  docs-triggers:
+    status: exempt
+    comment: No triggers.
+  entity-event-setup: done
+  entity-unique-id: done
+  has-entity-name: done
+  runtime-data: done
+  test-before-configure:
+    status: exempt
+    comment: No connection to test; the source entity is picked from a selector.
+  test-before-setup:
+    status: exempt
+    comment: No connection to test; an unavailable source holds the output.
+  unique-config-entry: done
+
+  # Silver
+  action-exceptions:
+    status: exempt
+    comment: No actions.
+  config-entry-unloading: done
+  docs-configuration-parameters: done
+  docs-installation-parameters: done
+  entity-unavailable:
+    status: exempt
+    comment: The output holds its last value while the source is unavailable.
+  integration-owner: done
+  log-when-unavailable: done
+  parallel-updates: done
+  reauthentication-flow:
+    status: exempt
+    comment: No authentication.
+  test-coverage: done
+
+  # Gold
+  devices: done
+  diagnostics: done
+  discovery:
+    status: exempt
+    comment: Helper without devices to discover.
+  discovery-update-info:
+    status: exempt
+    comment: Helper without devices to discover.
+  docs-data-update: done
+  docs-examples: done
+  docs-known-limitations: done
+  docs-supported-devices:
+    status: exempt
+    comment: Helper, works with any numeric entity.
+  docs-supported-functions: done
+  docs-troubleshooting: done
+  docs-use-cases: done
+  dynamic-devices:
+    status: exempt
+    comment: One device per config entry.
+  entity-category: done
+  entity-device-class: done
+  entity-disabled-by-default: done
+  entity-translations: done
+  exception-translations:
+    status: exempt
+    comment: No user facing exceptions.
+  icon-translations: done
+  reconfiguration-flow:
+    status: exempt
+    comment: The options flow changes the source and unit; everything else is an entity.
+  repair-issues: done
+  stale-devices:
+    status: exempt
+    comment: One device per config entry, removed with the entry.
+
+  # Platinum
+  async-dependency:
+    status: exempt
+    comment: No external requirements.
+  inject-websession:
+    status: exempt
+    comment: No web requests.
+  strict-typing: done

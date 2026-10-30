@@ -1,0 +1,139 @@
+---
+name: "Release"
+
+# Run from Actions → Release → Run workflow on the `dev` branch.
+# The workflow checks that CI passed on the current commit, commits the version to manifest.json, tags the commit,
+# builds pid_controller.zip and publishes a GitHub release with generated notes
+# (categories are configured in .github/release.yml).
+#
+# Note: the release commit is pushed to `dev` with GITHUB_TOKEN. If branch
+# protection with required status checks is enabled on `dev`, that push is
+# rejected: add a bypass for GitHub Actions or push with a GitHub App token.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag: vX.Y.Z, or vX.Y.Z-preN / -alphaN / -betaN / -rcN for a pre-release"
+        required: true
+        type: string
+      dry_run:
+        description: "Dry run: build and preview the release notes without pushing or publishing"
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  release:
+    name: "Publish release"
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    env:
+      VERSION: ${{ inputs.version }}
+      DRY_RUN: ${{ inputs.dry_run }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MANIFEST: custom_components/pid_controller/manifest.json
+    steps:
+      - name: "Validate input"
+        run: |
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-(pre|alpha|beta|rc)[0-9]*)?$ ]]; then
+            echo "::error::Version '$VERSION' does not match vX.Y.Z or vX.Y.Z-(pre|alpha|beta|rc)N"
+            exit 1
+          fi
+          if [[ "$GITHUB_REF" != "refs/heads/dev" ]]; then
+            echo "::error::Releases are made from the dev branch, not $GITHUB_REF"
+            exit 1
+          fi
+
+      - name: "Checkout the repository"
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: "Check that CI passed on this commit"
+        run: |
+          conclusion=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml \
+            --commit "$GITHUB_SHA" --event push --limit 1 --json status,conclusion \
+            --jq '.[0] | if . == null then "missing" elif .status != "completed" then .status else .conclusion end')
+          if [[ "$conclusion" != "success" ]]; then
+            echo "::error::CI on $GITHUB_SHA is '$conclusion', wait for a green CI run before releasing"
+            exit 1
+          fi
+
+      - name: "Check that the tag does not exist"
+        run: |
+          if git rev-parse -q --verify "refs/tags/$VERSION" >/dev/null; then
+            echo "::error::Tag $VERSION already exists"
+            exit 1
+          fi
+
+      - name: "Find the previous release tag"
+        id: previous
+        run: |
+          # A pre-release is compared with the previous tag of any kind,
+          # a stable release with the previous stable release.
+          tags=$(git -c versionsort.suffix=- tag --list 'v*' --sort=-v:refname --merged HEAD)
+          if [[ "$VERSION" != *-* ]]; then
+            tags=$(grep -v '[-]' <<<"$tags" || true)
+          fi
+          previous=$(head -n 1 <<<"$tags")
+          echo "Previous tag: ${previous:-<none>}"
+          echo "tag=$previous" >> "$GITHUB_OUTPUT"
+
+      - name: "Set the version in manifest.json"
+        run: |
+          jq --arg version "$VERSION" '.version = $version' "$MANIFEST" > manifest.tmp
+          mv manifest.tmp "$MANIFEST"
+          git diff
+
+      - name: "Commit and tag"
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -am "Release $VERSION"
+          git tag -a "$VERSION" -m "$VERSION"
+
+      - name: "Zip component dir"
+        working-directory: ./custom_components/pid_controller
+        run: zip -r "$GITHUB_WORKSPACE/pid_controller.zip" ./
+
+      - name: "Push the release commit and tag"
+        if: ${{ !inputs.dry_run }}
+        run: git push --atomic origin HEAD:dev "refs/tags/$VERSION"
+
+      - name: "Publish the release"
+        if: ${{ !inputs.dry_run }}
+        env:
+          PREVIOUS: ${{ steps.previous.outputs.tag }}
+        run: |
+          args=(--verify-tag --title "$VERSION" --generate-notes)
+          if [[ -n "$PREVIOUS" ]]; then
+            args+=(--notes-start-tag "$PREVIOUS")
+          fi
+          if [[ "$VERSION" == *-* ]]; then
+            args+=(--prerelease)
+          fi
+          gh release create "$VERSION" pid_controller.zip "${args[@]}"
+
+      - name: "Preview the release notes"
+        if: ${{ inputs.dry_run }}
+        env:
+          PREVIOUS: ${{ steps.previous.outputs.tag }}
+        run: |
+          args=(-f "tag_name=$VERSION" -f "target_commitish=$(git rev-parse HEAD~1)")
+          if [[ -n "$PREVIOUS" ]]; then
+            args+=(-f "previous_tag_name=$PREVIOUS")
+          fi
+          {
+            echo "## Dry run: $VERSION (previous: ${PREVIOUS:-none})"
+            echo
+            gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" "${args[@]}" --jq .body
+          } >> "$GITHUB_STEP_SUMMARY"

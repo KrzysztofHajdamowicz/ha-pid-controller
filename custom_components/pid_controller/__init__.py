@@ -1,100 +1,69 @@
-#
-#  Copyright (c) 2022, Diogo Silva "Soloam"
-#  Creative Commons BY-NC-SA 4.0 International Public License
-#  (see LICENSE.md or https://creativecommons.org/licenses/by-nc-sa/4.0/)
-#
-"""
-PID Controller.
-For more details about this sensor, please refer to the documentation at
-https://github.com/soloam/ha-pid-controller/
-"""
-import logging
+"""The PID Controller integration."""
 
-import homeassistant.helpers.config_validation as cv
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.service import verify_domain_control
-from homeassistant.const import ATTR_ENTITY_ID
-from homeassistant.exceptions import HomeAssistantError
+from __future__ import annotations
 
-import voluptuous as vol
-
-# pylint: disable=wildcard-import, unused-wildcard-import
-from .const import *
-
-__version__ = VERSION
-
-_LOGGER = logging.getLogger(__name__)
-
-SERVICE_SCHEMA = vol.Schema(
-    {
-        vol.Required(ATTR_ENTITY_ID): cv.entity_id,
-    }
+from homeassistant.const import Platform
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.device import async_entity_id_to_device_id
+from homeassistant.helpers.helper_integration import (
+    async_handle_source_entity_changes,
 )
+from homeassistant.helpers.start import async_at_started
 
-# pylint: disable=unused-argument
-async def async_setup(hass: HomeAssistant, config):
-    """Set up a pid."""
+from .const import CONF_INITIAL_VALUES, CONF_SOURCE, DOMAIN
+from .controller import PIDConfigEntry, PIDController, PIDParameters
 
-    _LOGGER.debug("setup")
+PLATFORMS = [
+    Platform.BUTTON,
+    Platform.NUMBER,
+    Platform.SELECT,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
 
-    async def async_pid_service_reset(call) -> None:
-        """Call pid service handler."""
-        _LOGGER.info("%s service called", call.service)
-        await pid_reset_service(hass, call)
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
-    hass.services.async_register(
-        COMPONENT_DOMAIN,
-        SERVICE_RESET_PID,
-        async_pid_service_reset,
-        schema=SERVICE_SCHEMA,
+
+async def async_setup_entry(hass: HomeAssistant, entry: PIDConfigEntry) -> bool:
+    """Set up a PID controller from a config entry."""
+    source = entry.options[CONF_SOURCE]
+    controller = PIDController(
+        hass,
+        source,
+        PIDParameters.from_mapping(entry.options.get(CONF_INITIAL_VALUES, {})),
+    )
+    entry.runtime_data = controller
+
+    def set_source_entity_id_or_uuid(source_entity_id: str) -> None:
+        hass.config_entries.async_update_entry(
+            entry, options={**entry.options, CONF_SOURCE: source_entity_id}
+        )
+        hass.config_entries.async_schedule_reload(entry.entry_id)
+
+    entry.async_on_unload(
+        async_handle_source_entity_changes(
+            hass,
+            helper_config_entry_id=entry.entry_id,
+            set_source_entity_id_or_uuid=set_source_entity_id_or_uuid,
+            source_device_id=async_entity_id_to_device_id(hass, source),
+            source_entity_id_or_uuid=source,
+        )
     )
 
-    async def async_pid_service_autotune(call) -> None:
-        """Call pid service handler."""
-        _LOGGER.info("%s service called", call.service)
-        await pid_autotune_service(hass, call)
+    # The entities restore their values into the controller while they are
+    # added, so the controller only starts once every platform is set up.
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    entry.async_on_unload(controller.async_stop)
 
-    hass.services.async_register(
-        COMPONENT_DOMAIN,
-        SERVICE_AUTOTUNE,
-        async_pid_service_autotune,
-        schema=SERVICE_SCHEMA,
-    )
+    @callback
+    def _async_start(_hass: HomeAssistant) -> None:
+        controller.async_start()
 
+    entry.async_on_unload(async_at_started(hass, _async_start))
     return True
 
 
-def get_entity_from_domain(hass: HomeAssistant, domain, entity_id):
-    component = hass.data.get(domain)
-    if component is None:
-        raise HomeAssistantError(f"{domain} component not set up")
-
-    entity = component.get_entity(entity_id)
-    if entity is None:
-        raise HomeAssistantError(f"{entity_id} not found")
-
-    return entity
-
-
-async def pid_reset_service(hass: HomeAssistant, call):
-    entity_id = call.data["entity_id"]
-    domain = entity_id.split(".")[0]
-
-    _LOGGER.info("%s reset pid", entity_id)
-
-    try:
-        get_entity_from_domain(hass, domain, entity_id).reset_pid()
-    except AttributeError:
-        raise HomeAssistantError(f"{entity_id} can't reset PID") from AttributeError
-
-
-async def pid_autotune_service(hass: HomeAssistant, call):
-    entity_id = call.data["entity_id"]
-    domain = entity_id.split(".")[0]
-
-    _LOGGER.info("%s autotune pid", entity_id)
-
-    try:
-        get_entity_from_domain(hass, domain, entity_id).start_autotune()
-    except AttributeError:
-        raise HomeAssistantError(f"{entity_id} can't reset PID") from AttributeError
+async def async_unload_entry(hass: HomeAssistant, entry: PIDConfigEntry) -> bool:
+    """Unload a config entry."""
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)

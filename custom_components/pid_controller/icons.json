@@ -1,0 +1,32 @@
+{
+  "entity": {
+    "sensor": {
+      "output": { "default": "mdi:chart-bell-curve-cumulative" },
+      "p_term": { "default": "mdi:alpha-p-box-outline" },
+      "i_term": { "default": "mdi:alpha-i-box-outline" },
+      "d_term": { "default": "mdi:alpha-d-box-outline" },
+      "error": { "default": "mdi:delta" }
+    },
+    "number": {
+      "set_point": { "default": "mdi:target" },
+      "proportional": { "default": "mdi:alpha-p" },
+      "integral": { "default": "mdi:alpha-i" },
+      "derivative": { "default": "mdi:alpha-d" },
+      "minimum": { "default": "mdi:arrow-collapse-down" },
+      "maximum": { "default": "mdi:arrow-collapse-up" },
+      "precision": { "default": "mdi:decimal" },
+      "sample_time": { "default": "mdi:timer-outline" },
+      "windup": { "default": "mdi:sigma" }
+    },
+    "switch": {
+      "enabled": { "default": "mdi:power", "state": { "off": "mdi:power-off" } },
+      "invert": { "default": "mdi:swap-vertical" }
+    },
+    "select": {
+      "round": { "default": "mdi:format-annotation-plus" }
+    },
+    "button": {
+      "reset": { "default": "mdi:restore" }
+    }
+  }
+}

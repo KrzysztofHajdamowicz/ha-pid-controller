@@ -1,0 +1,68 @@
+---
+name: "Stale"
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+    inputs:
+      debug_only:
+        description: "Dry run: log what would happen without changing anything"
+        required: false
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: stale
+
+jobs:
+  stale:
+    name: "Mark and close stale issues and PRs"
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/stale@v11
+        with:
+          debug-only: ${{ inputs.debug_only || false }}
+          days-before-stale: 14
+          days-before-close: 7
+          stale-issue-label: "stale"
+          stale-pr-label: "stale"
+          exempt-issue-labels: "waiting for feedback"
+          # Major Dependabot updates wait for a manual merge.
+          exempt-pr-labels: "dependencies"
+          stale-issue-message: >-
+            This issue has been automatically marked as stale because it has not had
+            recent activity. It will be closed if no further activity occurs. Thank you
+            for your contributions.
+          stale-pr-message: >-
+            This pull request has been automatically marked as stale because it has not
+            had recent activity. It will be closed if no further activity occurs. Thank
+            you for your contributions.
+
+  no-response:
+    name: "Close issues waiting for feedback"
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      # The "waiting for feedback" label acts as the stale label: any new activity
+      # removes it, no activity for 14 days closes the issue.
+      - uses: actions/stale@v11
+        with:
+          debug-only: ${{ inputs.debug_only || false }}
+          only-labels: "waiting for feedback"
+          stale-issue-label: "waiting for feedback"
+          days-before-stale: -1
+          days-before-close: 14
+          days-before-pr-close: -1
+          close-issue-message: >
+            This issue has been automatically closed because there has been no response
+            to our request for more information from the original author. With only the
+            information that is currently in the issue, we don't have enough information
+            to take action. Please reach out if you have or find the answers we need so
+            that we can investigate further.
