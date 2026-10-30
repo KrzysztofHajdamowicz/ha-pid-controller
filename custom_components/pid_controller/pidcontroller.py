@@ -74,25 +74,25 @@ class PIDController:
 
         # Calculate error
         error = self._set_point - feedback_value
-        last_error = self._set_point - (
-            self._last_input if self._last_input is not None else self._set_point
-        )
-
-        # Calculate delta error
-        delta_error = error - last_error
+        # Calculate delta error (no derivative kick on the first sample)
+        if self._last_input is None:
+            delta_error = 0.0
+        else:
+            delta_error = error - (self._set_point - self._last_input)
 
         # Calculate P
         self._p_term = self._kp * error
 
-        # Calculate I and avoids Sturation
-        if self._last_output is None or (
-            self._last_output > 0 and self._last_output < 100
-        ):
-            self._i_term += self._ki * error * delta_time
-            self._i_term = self.clamp_value(self._i_term, self._windup)
-
         # Calculate D
         self._d_term = self._kd * delta_error / delta_time
+
+        # Calculate I with conditional integration: skip the step only while
+        # the output is saturated and the step would push it further out
+        i_step = self._ki * error * delta_time
+        i_term = self.clamp_value(self._i_term + i_step, self._windup)
+        unclamped = self._p_term + i_term + self._d_term
+        if not (unclamped > 100 and i_step > 0) and not (unclamped < 0 and i_step < 0):
+            self._i_term = i_term
 
         # Compute final output
         self._output = self._p_term + self._i_term + self._d_term

@@ -11,11 +11,11 @@ https://github.com/soloam/ha-pid-controller/
 from __future__ import annotations
 
 import logging
+from hashlib import sha1
 from math import floor, ceil
 from typing import Any, Mapping, Optional
 
 import voluptuous as vol
-from _sha1 import sha1
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.const import (
     CONF_ENTITY_ID,
@@ -33,7 +33,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import TemplateError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.config_validation import PLATFORM_SCHEMA
-from homeassistant.helpers.event import async_track_state_change
+from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.template import result_as_boolean
 
 # pylint: disable=wildcard-import, unused-wildcard-import
@@ -392,7 +392,7 @@ class PidController(SensorEntity):
         return int(DEFAULT_SAMPLE_TIME)
 
     @property
-    def windup(self) -> int:
+    def windup(self) -> float:
         """Returns Windup"""
 
         if self._windup_template is not None:
@@ -400,16 +400,16 @@ class PidController(SensorEntity):
                 windup = self._windup_template.async_render(parse_result=False)
             except (TemplateError, TypeError) as ex:
                 self.show_template_exception(ex, CONF_WINDUP)
-                return int(DEFAULT_WINDUP)
+                return float(DEFAULT_WINDUP)
 
             try:
-                windup = int(float(windup))
+                windup = float(windup)
             except ValueError:
-                windup = int(DEFAULT_WINDUP)
+                windup = float(DEFAULT_WINDUP)
 
-            return int(windup)
+            return windup
 
-        return int(DEFAULT_WINDUP)
+        return float(DEFAULT_WINDUP)
 
     @property
     def proportional(self) -> float:
@@ -808,10 +808,10 @@ class PidController(SensorEntity):
     async def async_added_to_hass(self) -> None:
         """Register callbacks."""
 
-        # pylint: disable=unused-argument
         @callback
-        def sensor_state_listener(entity, old_state, new_state):
+        def sensor_state_listener(event):
             """Handle device state changes."""
+            entity = event.data["entity_id"]
             last_state = self.state
             self._update_sensor(entity=entity)
             if last_state != self.state or entity in self._force_update:
@@ -827,8 +827,11 @@ class PidController(SensorEntity):
             self.async_schedule_update_ha_state(True)
 
             ## process listners
-            for entity in self._entities:
-                async_track_state_change(self.hass, entity, sensor_state_listener)
+            self.async_on_remove(
+                async_track_state_change_event(
+                    self.hass, list(dict.fromkeys(self._entities)), sensor_state_listener
+                )
+            )
 
         self.hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, sensor_startup)
 
