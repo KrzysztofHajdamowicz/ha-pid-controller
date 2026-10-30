@@ -9,7 +9,6 @@ For more details about this sensor, please refer to the documentation at
 https://github.com/soloam/ha-pid-controller/
 """
 import logging
-from distutils import util
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.core import HomeAssistant
