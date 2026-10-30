@@ -26,9 +26,9 @@
             "description": "Starting values of the controller entities. You can change them later on the device page.",
             "data": {
               "set_point": "Set point",
-              "proportional": "Proportional gain (P)",
-              "integral": "Integral gain (I)",
-              "derivative": "Derivative gain (D)",
+              "proportional": "Gain P (proportional)",
+              "integral": "Gain I (integral)",
+              "derivative": "Gain D (derivative)",
               "minimum": "Output minimum",
               "maximum": "Output maximum"
             }
@@ -50,16 +50,16 @@
   "entity": {
     "sensor": {
       "output": { "name": "Output" },
-      "p_term": { "name": "Proportional term" },
-      "i_term": { "name": "Integral term" },
-      "d_term": { "name": "Derivative term" },
+      "p_term": { "name": "Term P" },
+      "i_term": { "name": "Term I" },
+      "d_term": { "name": "Term D" },
       "error": { "name": "Error" }
     },
     "number": {
       "set_point": { "name": "Set point" },
-      "proportional": { "name": "Proportional gain" },
-      "integral": { "name": "Integral gain" },
-      "derivative": { "name": "Derivative gain" },
+      "proportional": { "name": "Gain P" },
+      "integral": { "name": "Gain I" },
+      "derivative": { "name": "Gain D" },
       "minimum": { "name": "Minimum" },
       "maximum": { "name": "Maximum" },
       "precision": { "name": "Precision" },

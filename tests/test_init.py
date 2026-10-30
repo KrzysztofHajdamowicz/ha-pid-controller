@@ -27,14 +27,14 @@ async def test_setup_and_unload(
     assert {entity.entity_id for entity in entities} >= {
         OUTPUT,
         "number.air_purifier_set_point",
-        "number.air_purifier_proportional_gain",
+        "number.air_purifier_gain_p",
         "number.air_purifier_maximum",
         "number.air_purifier_sample_time",
         "switch.air_purifier_enabled",
         "switch.air_purifier_invert",
         "select.air_purifier_rounding",
         "button.air_purifier_reset",
-        "sensor.air_purifier_integral_term",
+        "sensor.air_purifier_term_i",
     }
     device = device_registry.async_get_device_by_identifier(
         (DOMAIN, loaded_entry.entry_id), loaded_entry.entry_id

@@ -26,9 +26,9 @@
             "description": "Początkowe wartości encji regulatora. Można je później zmienić na stronie urządzenia.",
             "data": {
               "set_point": "Wartość zadana",
-              "proportional": "Wzmocnienie proporcjonalne (P)",
-              "integral": "Wzmocnienie całkujące (I)",
-              "derivative": "Wzmocnienie różniczkujące (D)",
+              "proportional": "Wzmocnienie P (proporcjonalne)",
+              "integral": "Wzmocnienie I (całkujące)",
+              "derivative": "Wzmocnienie D (różniczkujące)",
               "minimum": "Minimum wyjścia",
               "maximum": "Maksimum wyjścia"
             }
@@ -50,16 +50,16 @@
   "entity": {
     "sensor": {
       "output": { "name": "Wyjście" },
-      "p_term": { "name": "Człon proporcjonalny" },
-      "i_term": { "name": "Człon całkujący" },
-      "d_term": { "name": "Człon różniczkujący" },
+      "p_term": { "name": "Człon P" },
+      "i_term": { "name": "Człon I" },
+      "d_term": { "name": "Człon D" },
       "error": { "name": "Uchyb" }
     },
     "number": {
       "set_point": { "name": "Wartość zadana" },
-      "proportional": { "name": "Wzmocnienie proporcjonalne" },
-      "integral": { "name": "Wzmocnienie całkujące" },
-      "derivative": { "name": "Wzmocnienie różniczkujące" },
+      "proportional": { "name": "Wzmocnienie P" },
+      "integral": { "name": "Wzmocnienie I" },
+      "derivative": { "name": "Wzmocnienie D" },
       "minimum": { "name": "Minimum" },
       "maximum": { "name": "Maksimum" },
       "precision": { "name": "Precyzja" },

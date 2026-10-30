@@ -59,7 +59,7 @@ The source entity and the output unit can be changed later with **Configure** on
 | Output (`sensor.<name>`) | | The controller output between minimum and maximum. Attributes `source` and `source_available` show the value used for the last calculation. |
 | Set point | | The value the source should reach. Takes the unit of the source. |
 | Enabled | | When off, the output is the minimum and the controller is paused. |
-| Proportional / Integral / Derivative gain | Configuration | The P, I and D gains. All three at 0 turn the controller into an on/off switch. |
+| Gain P / Gain I / Gain D | Configuration | The proportional, integral and derivative gains. All three at 0 turn the controller into an on/off switch. |
 | Minimum / Maximum | Configuration | The output range. |
 | Precision | Configuration | Number of decimals of the output; 0 gives whole numbers. |
 | Rounding | Configuration | Round, floor or ceil to the precision. |
@@ -67,7 +67,7 @@ The source entity and the output unit can be changed later with **Configure** on
 | Windup limit | Configuration | Limits the integral term to ± this many percent; 0 means no limit. |
 | Invert | Configuration | Turn on when a higher output lowers the source, e.g. a fan or an air purifier. |
 | Reset | Configuration | Forget the integral and start over. |
-| Proportional / Integral / Derivative term, Error | Diagnostic | The parts of the last calculation, disabled by default. |
+| Term P / Term I / Term D, Error | Diagnostic | The proportional, integral and derivative parts of the last calculation (in %), disabled by default. |
 
 All values are restored after a restart, including the integral, so the output continues where it left off.
 
@@ -142,7 +142,7 @@ Then:
 
 ## Troubleshooting
 
-- Enable debug logging for `custom_components.pid_controller` and check the **Proportional / Integral / Derivative term** diagnostic entities to see how the output is made up.
+- Enable debug logging for `custom_components.pid_controller` and check the **Term P / Term I / Term D** diagnostic entities to see how the output is made up.
 - Download the diagnostics of the controller (**⋮ → Download diagnostics**) when opening an [issue][issues].
 
 ## Removal
