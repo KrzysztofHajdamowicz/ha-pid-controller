@@ -16,5 +16,5 @@
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/KrzysztofHajdamowicz/ha-pid-controller/issues",
   "requirements": [],
-  "version": "v2.0.0"
+  "version": "v0.0.0"
 }
