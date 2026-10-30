@@ -1,14 +1,20 @@
 {
   "domain": "pid_controller",
   "name": "PID Controller",
-  "after_dependencies": ["input_number"],
-  "categories": ["helpers.calculate_value"],
-  "codeowners": ["@KrzysztofHajdamowicz"],
+  "after_dependencies": [
+    "input_number"
+  ],
+  "categories": [
+    "helpers.calculate_value"
+  ],
+  "codeowners": [
+    "@KrzysztofHajdamowicz"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/KrzysztofHajdamowicz/ha-pid-controller",
   "integration_type": "helper",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/KrzysztofHajdamowicz/ha-pid-controller/issues",
   "requirements": [],
-  "version": "v0.0.0"
+  "version": "v2.0.0"
 }
