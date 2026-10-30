@@ -1,0 +1,166 @@
+---
+name: "CI"
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "23 3 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  lint:
+    name: "Lint"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v7
+
+      - name: "Set up uv"
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+
+      - name: "Install dependencies"
+        run: uv sync --locked
+
+      - name: "Ruff check"
+        run: uv run ruff check .
+
+      - name: "Ruff format"
+        run: uv run ruff format --check .
+
+      - name: "Mypy"
+        run: uv run mypy
+
+  test:
+    name: "Test"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v7
+
+      - name: "Set up uv"
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+
+      - name: "Install dependencies"
+        run: uv sync --locked
+
+      - name: "Run tests"
+        run: |
+          uv run pytest --durations=10 -p no:cacheprovider
+          ./scripts/check_dirty
+
+      - name: "Smoke test"
+        run: uv run python -I scripts/smoke_test.py
+
+  test-minimum:
+    name: "Test HA 2026.9 (minimum)"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v7
+
+      - name: "Set up uv"
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+
+      # Keep in sync with "homeassistant" in hacs.json. Entity snapshots depend
+      # on the registry format of the pinned release, so they are skipped here.
+      - name: "Install minimum-version test dependencies"
+        run: |
+          uv venv --python 3.14
+          uv pip install pytest-homeassistant-custom-component==0.13.363 pytest-cov==7.0.0
+
+      - name: "Run tests"
+        run: |
+          .venv/bin/pytest --durations=10 -p no:cacheprovider --ignore=tests/test_entities.py --cov-fail-under=0
+          ./scripts/check_dirty
+
+      - name: "Smoke test"
+        run: .venv/bin/python -I scripts/smoke_test.py
+
+  test-beta:
+    name: "Smoke test HA beta"
+    runs-on: ubuntu-latest
+    # Early warning for breaking changes in the next Home Assistant release.
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v7
+
+      - name: "Set up uv"
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+
+      - name: "Install the latest Home Assistant pre-release"
+        run: |
+          uv venv --python 3.14
+          uv pip install --prerelease allow homeassistant
+
+      - name: "Smoke test"
+        run: .venv/bin/python -I scripts/smoke_test.py
+
+  hassfest:
+    name: "Hassfest"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v7
+
+      - name: "Run hassfest validation"
+        uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    name: "HACS"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v7
+
+      - name: "Run HACS validation"
+        uses: hacs/action@main
+        with:
+          category: integration
+
+  automerge:
+    name: "Auto-merge Dependabot"
+    needs: [lint, test, test-minimum, hassfest, hacs]
+    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: "Fetch Dependabot metadata"
+        id: metadata
+        uses: dependabot/fetch-metadata@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Merge minor and patch updates"
+        if: >-
+          steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --squash --delete-branch "$PR_URL"

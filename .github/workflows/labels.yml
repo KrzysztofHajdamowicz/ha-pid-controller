@@ -1,0 +1,37 @@
+---
+name: "Labels"
+
+# Keeps the repository labels in sync with .github/labels.yml.
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - .github/labels.yml
+      - .github/workflows/labels.yml
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: show the changes without applying them"
+        required: false
+        type: boolean
+        default: false
+
+permissions: {}
+
+jobs:
+  labels:
+    name: "Sync labels"
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v7
+
+      - name: "Sync labels"
+        uses: crazy-max/ghaction-github-labeler@v6
+        with:
+          yaml-file: .github/labels.yml
+          dry-run: ${{ inputs.dry_run || false }}

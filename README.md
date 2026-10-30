@@ -1,229 +1,176 @@
-# PID Controller to Home Assistant
+# PID Controller for Home Assistant
 
-A PID Controller allows you to target a set value and achieve that setting in a smoothly and mantinin it without fluctuations
+[![GitHub Release][releases-shield]][releases]
+[![CI][ci-shield]][ci]
+[![License][license-shield]](LICENSE.md)
+[![HACS][hacs-shield]][hacs]
 
-[![gh_release](https://img.shields.io/github/v/release/KrzysztofHajdamowicz/ha-pid-controller)](../../releases) [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration) [![gh_last_commit]](../../commits/dev)
+*Please :star: this repo if you find it useful.*
 
-> **Maintained fork.** This is the maintained continuation of [soloam/ha-pid-controller](https://github.com/soloam/ha-pid-controller), which is no longer updated. Many thanks to Diogo Silva (@soloam) for the original work. v1.2.0 restores compatibility with Home Assistant 2025.5 and newer (tested on 2026.11).
+A PID controller helper: it reads a numeric entity (a temperature, PM2.5 or humidity sensor) and calculates an output that drives it towards a set point. Use the output to set a fan speed, a valve position, a heater power or anything else that takes a number.
 
+[![Open your Home Assistant instance and open this repository in the Home Assistant Community Store.][hacs-button]][hacs-link]
+[![Open your Home Assistant instance and start setting up a new PID controller.][setup-button]][setup-link]
 
-![PID Graph][pid_graph]
+> **Maintained fork.** This is the maintained continuation of [soloam/ha-pid-controller](https://github.com/soloam/ha-pid-controller), which is no longer updated. Thanks to Diogo Silva ([@soloam](https://github.com/soloam)) for the original integration.
 
+![PID graph][pid-graph]
 
-## What makes a PID Controller special
-When coding a temperature controller for exemple, we like to set the max temperature and control the flow output or temperature output, based on the response from the temperature sensors.A PID Controller retrieves the response of the sensors and calculates the power output necessary to achieve the desired target or maintain it with small oscillations.
+## Breaking changes in v2.0.0
+
+- The controller is set up in the UI (**Settings → Devices & services → Helpers → Create helper → PID Controller**). The `sensor: - platform: pid_controller` YAML configuration is **imported automatically** on the first start and then has to be removed, see [Migrating from v1](#migrating-from-v1-yaml).
+- The set point, gains and limits are entities of the controller instead of templates.
+- The `pid_controller.reset_pid` and `pid_controller.autotune_pid` actions are gone: use the **Reset** button. Autotune never worked.
+- Requires Home Assistant 2026.9 or newer.
+
 ## Installation
-### Install from HACS (recommended)
-1. Have [HACS][hacs] installed, this will allow you to easily manage and track updates.
-1. Search for "PID Controller".
-1. Click Install below the found integration.
-... then if you want to use `configuration.yaml` to configure the sensor...
-1. Add `pid_controller` sensor to your `configuration.yaml` file. See configuration examples below.
-1. Restart Home Assistant
+
+### Home Assistant Community Store (recommended)
+
+1. Click the **Open in HACS** button above, or add `https://github.com/KrzysztofHajdamowicz/ha-pid-controller` as a custom repository of type *Integration*.
+2. Download **PID Controller** and restart Home Assistant.
+3. Click the **Add helper** button above, or go to **Settings → Devices & services → Helpers → Create helper → PID Controller**.
+
 ### Manual installation
-1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
-1. If you do not have a `custom_components` directory (folder) there, you need to create it.
-1. Download the content from the custom_components to that folder
-... then if you want to use `configuration.yaml` to configure sensor...
-1. Add `pid_controller` sensor to your `configuration.yaml` file. See configuration examples below.
-1. Restart Home Assistant
-### Configuration Examples
-A example with all inputs that allows to test the PID Controller
+
+1. Download `pid_controller.zip` from the [latest release][releases].
+2. Unpack it into `<config>/custom_components/pid_controller/`.
+3. Restart Home Assistant and add the helper as described above.
+
+## Configuration
+
+Each controller is its own config entry; add as many as you need. The setup asks for:
+
+- **Name**\
+  Name of the controller device. The output sensor takes this name, so *Air purifier PID* becomes `sensor.air_purifier_pid`.
+- **Source entity**\
+  The measured value: a `sensor`, `number` or `input_number` entity.
+- **Output unit of measurement** (optional)\
+  Unit of the output sensor, for example `%`.
+- **Initial values** (optional)\
+  Starting set point, gains and output range. They can be changed later on the device page.
+
+The source entity and the output unit can be changed later with **Configure** on the controller.
+
+### Entities
+
+| Entity | Category | Description |
+|---|---|---|
+| Output (`sensor.<name>`) | | The controller output between minimum and maximum. Attributes `source` and `source_available` show the value used for the last calculation. |
+| Set point | | The value the source should reach. Takes the unit of the source. |
+| Enabled | | When off, the output is the minimum and the controller is paused. |
+| Proportional / Integral / Derivative gain | Configuration | The P, I and D gains. All three at 0 turn the controller into an on/off switch. |
+| Minimum / Maximum | Configuration | The output range. |
+| Precision | Configuration | Number of decimals of the output; 0 gives whole numbers. |
+| Rounding | Configuration | Round, floor or ceil to the precision. |
+| Sample time | Configuration | Seconds between calculations (see below). 0 calculates on every change of the source. |
+| Windup limit | Configuration | Limits the integral term to ± this many percent; 0 means no limit. |
+| Invert | Configuration | Turn on when a higher output lowers the source, e.g. a fan or an air purifier. |
+| Reset | Configuration | Forget the integral and start over. |
+| Proportional / Integral / Derivative term, Error | Diagnostic | The parts of the last calculation, disabled by default. |
+
+All values are restored after a restart, including the integral, so the output continues where it left off.
+
+## How it works
+
+The controller calculates on a 0–100 % scale and maps the result onto *minimum*–*maximum*:
+
+```
+error  = set point − source
+output = P·error + I·∑(error·Δt) + D·d(−source)/dt      (clamped to 0..100 %)
+state  = minimum + (maximum − minimum) · output / 100   (rounded to the precision)
+```
+
+Gains tuned with v1 keep working, because v1 used the same scale.
+
+- **When it calculates.** Every *sample time* seconds, so the integral keeps working while the source does not change, and on changes of the source once a sample time has passed since the last calculation. Changing any of the controller entities recalculates at once.
+- **Derivative on measurement.** The derivative reacts to changes of the source only, so moving the set point does not cause a jump.
+- **Anti-windup.** The integral stops growing while the output is at 0 or 100 % and the error would push it further, and is limited by the windup limit.
+- **Unavailable source.** While the source is `unavailable`, `unknown` or not a number, the controller pauses and the output keeps its last value. This is logged once when it happens and once when the source is back.
+
+### Tuning
+
+Start with only P, as in the graphs below from the original tutorial: increase P until the source oscillates around the set point, halve it, then add I until the remaining offset disappears in a reasonable time. D is rarely needed for slow processes such as room temperature or air quality.
+
+| P only | Adding I | Adding D | Tuned |
+|---|---|---|---|
+| ![Phase 1][phase-1] | ![Phase 2][phase-2] | ![Phase 3][phase-3] | ![Phase 4][phase-4] |
+
+## Example: air purifier
+
+A controller *Air purifier PID* with the PM2.5 sensor as source, set point 10, **Invert** on, minimum 0, maximum 14 and precision 0 outputs the favorite level of the purifier:
 
 ```yaml
+automation:
+  - alias: "Air purifier follows the PID controller"
+    triggers:
+      - trigger: state
+        entity_id: sensor.air_purifier_pid
+    actions:
+      - action: number.set_value
+        target:
+          entity_id: number.air_purifier_favorite_level
+        data:
+          value: "{{ states('sensor.air_purifier_pid') }}"
 
-# Configure a default setup of Home Assistant (frontend, api, etc)
-default_config:
+  - alias: "Quieter air purifier at night"
+    triggers:
+      - trigger: time
+        at: "22:00:00"
+    actions:
+      - action: number.set_value
+        target:
+          entity_id: number.air_purifier_pid_maximum
+        data:
+          value: 6
+```
 
+## Migrating from v1 (YAML)
 
-pid_controller:
+On the first start with v2, every `platform: pid_controller` sensor is imported into a controller with the same name, so the output keeps its entity ID (for example `sensor.oczyszczacz_salon_pid`). Each template is rendered once and its current value becomes the starting value of the matching entity; a repair issue lists what was imported.
 
-sensor:
-  - platform: pid_controller
-    name: hello
-    enabled: '{{ states("input_boolean.enabled") }}'
-    set_point: '{{ states("input_number.set_point") }}'
-    p: '{{ states("input_number.proportional") }}'
-    i: '{{ states("input_number.integral") }}'
-    d: '{{ states("input_number.derivative") }}'
-    entity_id: input_number.reading
-    invert: '{{ states("input_boolean.invert") }}'
-    precision: '{{ states("input_number.precision") }}'
-    minimum: '{{ states("input_number.minimum") }}'
-    maximum: '{{ states("input_number.maximum") }}'
-    round: '{{ states("input_select.round") }}'
-    sample_time: '{{ states("input_number.sample_time") }}'
-    windup: '{{ states("input_number.windup") }}'
+Then:
 
-input_boolean:
-  invert:
-    name: Invert
-    initial: no
-  enabled:
-    name: Enabled
+1. Remove the `platform: pid_controller` entries (and a bare `pid_controller:` line, if you had one) from your YAML and restart.
+2. Update automations and dashboards that changed the old `input_number`/`input_boolean`/`input_select` helpers: change the controller entities instead, for example `number.<name>_maximum` instead of `input_number.pid_maximum`.
+3. Delete the helpers you no longer need.
 
-input_select:
-  round:
-    initial: Round
-    options:
-      - Floor
-      - Ceil
-      - Round
+## Known limitations
 
-input_number:
-  sample_time:
-    name: Sample Time
-    initial: 0
-    min: 0
-    max: 30
-    step: 1
+- The output is a sensor. Use an automation to apply it to the device you control.
+- The output range is 0 % or more. For heating and cooling with one controller, use two controllers, one inverted.
 
-  minimum:
-    name: Minimum
-    initial: 0
-    min: 0
-    max: 5
-    step: 1
+## Troubleshooting
 
-  maximum:
-    name: Maximum
-    initial: 5
-    min: 0
-    max: 20
-    step: 1
+- Enable debug logging for `custom_components.pid_controller` and check the **Proportional / Integral / Derivative term** diagnostic entities to see how the output is made up.
+- Download the diagnostics of the controller (**⋮ → Download diagnostics**) when opening an [issue][issues].
 
-  reading:
-    name: Reading
-    initial: 0
-    min: 0
-    max: 30
-    step: 1
+## Removal
 
-  set_point:
-    name: Set Point
-    initial: 15
-    min: 0
-    max: 30
-    step: 1 
+Delete the controller in **Settings → Devices & services → Helpers**, then remove the integration in HACS and restart Home Assistant.
 
-  proportional:
-    name: Proportional
-    initial: 0
-    min: 0
-    max: 10
-    step: 0.01
+## Contributing
 
-  integral:
-    name: Integral
-    initial: 0
-    min: 0
-    max: 10
-    step: 0.01
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-  derivative:
-    name: Derivative
-    initial: 0
-    min: 0
-    max: 10
-    step: 0.01
+## License
 
-  precision:
-    name: Precision
-    initial: 2
-    min: 0
-    max: 10
-    step: 1
+[MIT](LICENSE.md). Original work © Diogo Silva (@soloam), maintained by Krzysztof Hajdamowicz.
 
-  windup:
-    name: Windup
-    initial: 0
-    min: 0
-    max: 30
-    step: 1
-
- ```
- 
- # Configuration Variables
-
-**set_point**: _(number/template) (Required)_ The target value (Ex. 25°C)
-
-**entity_id**: _(entity id) (Required)_ The sensor entity id that will provide the PID with the feedback values (Ex. sensor.livingroom_temperature) 
-
-**precision**: _(number/template) (Optional: Default 2)_ The precision of the returned value, decimals (Ex. 2)
-
-**round**: _(string/template) (Optional: Default round)_ The type of round to perform in calculations, can be _round|ceil|floor_ (Ex. floor)
-
-**sample_time**: _(number/template) (Optional: Default 0)_ The time in seconds between samples to accept into the calculations of the PID (Ex. 30)
-
-**enabled**: _(boolean/template) (Optional: Default yes)_ If the pid is enabled (Ex. yes)
-
-**invert**: _(boolean/template) (Optional: Default no)_ If the pid should be Inverted, check _invert pid_ section for more information (Ex. no)
-
-**minimum** _(number/template) (Optional: Default 0)_ The minimum output of the PID (Ex. 18°C)
-
-**maximum** _(number/template) (Optional: Default 1)_ The maximum output of the PID (Ex. 32°C)
-
-**windup** _(number/template) (Optional: Default 0)_ The maximum value to increment in the integral portion of the PID, check _Calibrate the PID_ section for more information (Ex. 5)
-
-**p/i/d** _(number/template) (Optional: Default 0)_ The PID calibration values, check _Calibrate the PID_ section to more information
-
-**unit_of_measurement** _(string/template) (Optional: Default points)_ The unit of measurement of the sensor
-# Basic Calibration of a PID
-For this I'm gonna use a practical example on calibrating the PID to be used as a thermostat to a climate system. Warming a room
-The PID is calibrated using the p|i|d variables.
-
- For start:
-
-- Set all to zero. It helps to have this as an input_number.
-- Set target temperature (set_point). It helps to have this as an input_number.
-- Set minimum to 0 (for now). It helps to have this as an input_number.
-- Set maximum to 1 (for now). It helps to have this as an input_number.
-- Set the entity_id to a sensor that reports the temperature of the room
-
-
-### Get the base 
-Setting all p|i|d variables to zero, the pid will behave as a normal on/off thermostat, siting to the max value when below the target temperature, and to the min value when above.
-Start the climate, the room should start warming up, and the PID should start receiving feedback from the sensor. When the temperature is below the target the PID should return 1 (target this to turn on your climate), when above the target it should return 0 (target this to turn off your climate). You should see something like this:
-
-![PID Phase 1][pid_phase1]
-
-The blue line is cycling around the target (25). From this we should take note of 2 important references:
-
-- The peak temperature, in this case we will assume 30 aka overshoot
-- The time that it took since it crossed the set point until it reached the peak, in this case we will assume 11 seconds.
-
-### Setting the Proportional Band (p)
-To set a p value we will start with double the overshoot, in this example 10 (5*2). This should pull down the reporting value from the PID, making a lower overshoot, and setteling bellow the set point
-
-![PID Phase 2][pid_phase2]
-
-We still can notice a bit of 'waving', but the overshoot is a lot smaller, and the other peaks start getting smaller, until barely noticeable.
-### Setting the Integral Band (i)
-To set the i value we will double the time of the overshoot of the first phase, in our example 22 (11*2). This will pull the values to the set point, but will add a bit of 'waving' (we will deal with this next). Lower values will result on a faster approatch to the target, at the cost of stability.
-
-![PID Phase 3][pid_phase3]
-### Setting the Derivate Band (d)
-To reduce the waving and the overshoot we can add some Derivate, to calculate this we can set half the overshoot time measured in phase 1, in our case 5 (11/2). This is the result:
-
-![PID Phase 4][pid_phase4]
-
-### Controlling Waveup
-The Integral part of the PID works by incrementing the error from the reading to increment the output. Sometime it can happen, if the error is too big that the incremental part scales the output way too far. To handle this you can set a maximum incremental value in the _windup_ value.
-### Debugging the PID
-You can look at the attributes of the sensor to the p|i|d variables, that should return the amount that each part is contributing to the PID output.
-# Inverted PID
-The PID standard behavior is to output the power that would be needed to raise the reported value to reach the set point. But if you need the inverted behavior, like a cooling system, that the rise of the output would lower the reported value, until it reaches the set point. To do this you can set _invert: yes_.
-# References
-- How to tune PID Loops: https://www.crossco.com/resources/technical/how-to-tune-pid-loops/
-# I just love coffee and beer
-[![buy_coffee]](https://www.buymeacoffee.com/soloam)
-
-***
-[gh_last_commit]: https://img.shields.io/github/last-commit/KrzysztofHajdamowicz/ha-pid-controller
-[pid_graph]: https://raw.githubusercontent.com/soloam/ha-pid-controller/master/resources/pid_graph.png
-[pid_phase1]: https://raw.githubusercontent.com/soloam/ha-pid-controller/master/resources/pip_phase1.png
-[pid_phase2]: https://raw.githubusercontent.com/soloam/ha-pid-controller/master/resources/pip_phase2.png
-[pid_phase3]: https://raw.githubusercontent.com/soloam/ha-pid-controller/master/resources/pip_phase3.png
-[pid_phase4]: https://raw.githubusercontent.com/soloam/ha-pid-controller/master/resources/pip_phase4.png
-[buy_coffee]: https://www.buymeacoffee.com/assets/img/custom_images/white_img.png
-[buy_coffee_badge]: https://img.shields.io/badge/Buy%20me%20a%20coffee-%F0%9F%8D%BA-lightgrey
+[ci]: https://github.com/KrzysztofHajdamowicz/ha-pid-controller/actions/workflows/ci.yml
+[ci-shield]: https://img.shields.io/github/actions/workflow/status/KrzysztofHajdamowicz/ha-pid-controller/ci.yml?branch=dev&style=popout
+[hacs]: https://hacs.xyz
+[hacs-shield]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=popout
+[hacs-button]: https://my.home-assistant.io/badges/hacs_repository.svg
+[hacs-link]: https://my.home-assistant.io/redirect/hacs_repository/?owner=KrzysztofHajdamowicz&repository=ha-pid-controller&category=integration
+[setup-button]: https://my.home-assistant.io/badges/config_flow_start.svg
+[setup-link]: https://my.home-assistant.io/redirect/config_flow_start/?domain=pid_controller
+[issues]: https://github.com/KrzysztofHajdamowicz/ha-pid-controller/issues
+[license-shield]: https://img.shields.io/github/license/KrzysztofHajdamowicz/ha-pid-controller.svg?style=popout
+[releases]: https://github.com/KrzysztofHajdamowicz/ha-pid-controller/releases
+[releases-shield]: https://img.shields.io/github/release/KrzysztofHajdamowicz/ha-pid-controller.svg?style=popout
+[pid-graph]: resources/pid_graph.png
+[phase-1]: resources/pip_phase1.png
+[phase-2]: resources/pip_phase2.png
+[phase-3]: resources/pip_phase3.png
+[phase-4]: resources/pip_phase4.png

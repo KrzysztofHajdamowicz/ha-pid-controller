@@ -1,51 +1,49 @@
-- name: breaking_change
-  description: Breaking Change
-  color: f44336
-
-- name: bug
-  description: Something isn't working
-  color: f9877f
-
-- name: fix
-  description: Something isn't working
-  color: f9877f
-
-- name: bugfix
-  description: Something isn't working
-  color: f9877f
-
-- name: feature
-  description: New feature or request
-  color: a2eeef
-
-- name: enhancement
-  description: New feature or request
-  color: a2eeef
-
-- name: documentation
-  description: Improvements or additions to documentation
-  color: 0075ca
-
-- name: dependencies
-  description: Pull requests that update a dependency file
-  color: 0366d6
-
-- name: github structure
-  description: Pull requests that update Github actions/workflow code
-  color: "000000"
-
-- name: help wanted
-  description: Extra attention is needed
-  color: 008672
-
-- name: major
-  description: Major changes. Used for release bump
-  color: 16970B
-
-- name: minor
-  description: Minor changes. Used for release bump
-  color: 16970B
-
-- name: patch
-  description: Patch changes. Used for release bump
-  color: 16970B
+# Repository labels, synced by .github/workflows/labels.yml.
+# Labels that are not listed here are deleted. The release notes categories
+# (.github/release.yml) are based on these labels.
+- name: "breaking"
+  color: "ffcc00"
+  description: "Breaking change."
+- name: "bug"
+  color: "d73a4a"
+  description: "Something isn't working."
+- name: "can't reproduce"
+  color: "71c2dd"
+  description: "The problem cannot be reproduced."
+- name: "dependencies"
+  color: "0366d6"
+  description: "Pull requests that update a dependency file."
+- name: "documentation"
+  color: "0075ca"
+  description: "Improvements or additions to documentation."
+- name: "duplicate"
+  color: "cfd3d7"
+  description: "This issue or pull request already exists."
+- name: "enhancement"
+  color: "a2eeef"
+  description: "New feature or request."
+- name: "good first issue"
+  color: "7057ff"
+  description: "Good for newcomers."
+- name: "help wanted"
+  color: "008672"
+  description: "Extra attention is needed."
+- name: "invalid"
+  color: "e4e669"
+  description: "This doesn't seem right."
+- name: "skip-changelog"
+  color: "ededed"
+  description: "Leave this pull request out of the release notes."
+- name: "stale"
+  color: "930191"
+  description: "Stale issues and PRs."
+- name: "tests"
+  color: "bfd4f2"
+  description: "CI, CD and testing related changes."
+- name: "waiting for feedback"
+  color: "bc2add"
+  description: "Further information is requested."
+  from_name: "question"
+- name: "wontfix"
+  color: "ffffff"
+  description: "This will not be worked on."

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Start a development Home Assistant instance with this integration loaded.
+
+set -e
+cd "$(dirname "$0")/.."
+
+# Create config dir if not present
+if [[ ! -d "${PWD}/config" ]]; then
+    mkdir -p "${PWD}/config"
+    uv run hass --config "${PWD}/config" --script ensure_config
+fi
+
+# Make <root>/custom_components importable without symlinking it into <root>/config.
+export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${PWD}"
+
+uv run hass --config "${PWD}/config" --debug
