@@ -8,7 +8,7 @@ rules:
     comment: The integration has no actions; the reset is a button entity.
   appropriate-polling:
     status: exempt
-    comment: Calculated helper, entities are pushed and never polled.
+    comment: Calculated values, entities are pushed and never polled.
   brands: done
   common-modules: done
   config-flow: done
@@ -63,16 +63,16 @@ rules:
   diagnostics: done
   discovery:
     status: exempt
-    comment: Helper without devices to discover.
+    comment: Calculated values, no devices to discover.
   discovery-update-info:
     status: exempt
-    comment: Helper without devices to discover.
+    comment: Calculated values, no devices to discover.
   docs-data-update: done
   docs-examples: done
   docs-known-limitations: done
   docs-supported-devices:
     status: exempt
-    comment: Helper, works with any numeric entity.
+    comment: Works with any numeric entity.
   docs-supported-functions: done
   docs-troubleshooting: done
   docs-use-cases: done
