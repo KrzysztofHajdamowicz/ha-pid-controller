@@ -1,0 +1,97 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Regulator PID o tej nazwie już istnieje."
+    },
+    "error": {
+      "name_exists": "Regulator PID o tej nazwie już istnieje."
+    },
+    "step": {
+      "user": {
+        "title": "Utwórz regulator PID",
+        "description": "Regulator odczytuje encję źródłową i wylicza wyjście, które sprowadza ją do wartości zadanej. Wartość zadana, wzmocnienia i limity stają się encjami regulatora, więc można je zmieniać w dowolnym momencie, także z automatyzacji.",
+        "data": {
+          "name": "Nazwa",
+          "source": "Encja źródłowa",
+          "unit_of_measurement": "Jednostka wyjścia"
+        },
+        "data_description": {
+          "name": "Używana także w identyfikatorze encji sensora wyjścia.",
+          "source": "Wartość mierzona, np. temperatura albo PM2.5.",
+          "unit_of_measurement": "Opcjonalna jednostka wyjścia, np. % albo poziom."
+        },
+        "sections": {
+          "initial_values": {
+            "name": "Wartości początkowe",
+            "description": "Początkowe wartości encji regulatora. Można je później zmienić na stronie urządzenia.",
+            "data": {
+              "set_point": "Wartość zadana",
+              "proportional": "Wzmocnienie proporcjonalne (P)",
+              "integral": "Wzmocnienie całkujące (I)",
+              "derivative": "Wzmocnienie różniczkujące (D)",
+              "minimum": "Minimum wyjścia",
+              "maximum": "Maksimum wyjścia"
+            }
+          }
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "source": "Encja źródłowa",
+          "unit_of_measurement": "Jednostka wyjścia"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "output": { "name": "Wyjście" },
+      "p_term": { "name": "Człon proporcjonalny" },
+      "i_term": { "name": "Człon całkujący" },
+      "d_term": { "name": "Człon różniczkujący" },
+      "error": { "name": "Uchyb" }
+    },
+    "number": {
+      "set_point": { "name": "Wartość zadana" },
+      "proportional": { "name": "Wzmocnienie proporcjonalne" },
+      "integral": { "name": "Wzmocnienie całkujące" },
+      "derivative": { "name": "Wzmocnienie różniczkujące" },
+      "minimum": { "name": "Minimum" },
+      "maximum": { "name": "Maksimum" },
+      "precision": { "name": "Precyzja" },
+      "sample_time": { "name": "Okres próbkowania" },
+      "windup": { "name": "Limit całkowania" }
+    },
+    "switch": {
+      "enabled": { "name": "Włączony" },
+      "invert": { "name": "Odwrócenie" }
+    },
+    "select": {
+      "round": {
+        "name": "Zaokrąglanie",
+        "state": {
+          "round": "Do najbliższej",
+          "floor": "W dół",
+          "ceil": "W górę"
+        }
+      }
+    },
+    "button": {
+      "reset": { "name": "Reset" }
+    }
+  },
+  "issues": {
+    "deprecated_yaml": {
+      "title": "Regulator PID \"{name}\" zaimportowano z YAML",
+      "description": "Konfiguracja YAML regulatora PID \"{name}\" została zaimportowana do interfejsu. Jego ustawienia są teraz encjami urządzenia regulatora.\n\n{warnings}\n\nUsuń wpis `platform: pid_controller` z konfiguracji YAML i zrestartuj Home Assistant, aby zamknąć ten problem. Automatyzacje, które zmieniały stare pomocniki, powinny teraz zmieniać encje regulatora."
+    },
+    "deprecated_yaml_exists": {
+      "title": "Regulator PID \"{name}\" nadal jest skonfigurowany w YAML",
+      "description": "Regulator PID o nazwie \"{name}\" już istnieje w interfejsie, więc jego konfiguracja YAML nie została ponownie zaimportowana.\n\nUsuń wpis `platform: pid_controller` z konfiguracji YAML i zrestartuj Home Assistant, aby zamknąć ten problem."
+    }
+  }
+}
