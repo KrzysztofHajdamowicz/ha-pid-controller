@@ -12,7 +12,7 @@ Home Assistant custom integration (domain `pid_controller`): a multi-instance PI
 ## Conventions
 
 - Branch `dev` is the default; every change goes through a PR into `dev`. Commit messages are imperative and in English.
-- Home Assistant 2026.9 is the minimum (Probatio replaced voluptuous there). Use `probatio`, not `voluptuous`. Keep it in sync in `hacs.json` and the `test-minimum` CI job.
+- Home Assistant 2026.11 is the minimum (the first release with `pytest-homeassistant`). Use `probatio`, not `voluptuous`. Keep it in sync in `hacs.json` and the `test-minimum` CI job.
 - Translations: `translations/en.json` is the source (no `strings.json`), keep `pl.json` complete.
 - Checks: `uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run pytest`, coverage ≥ 95 %. `uv run python -I scripts/smoke_test.py` boots real Home Assistant.
 - Never add Home Assistant itself to the dev dependencies: `pytest-homeassistant` pins the matching release.
