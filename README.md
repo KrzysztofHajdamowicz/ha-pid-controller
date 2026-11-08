@@ -25,6 +25,8 @@ A PID controller integration: it reads a numeric entity (a temperature, PM2.5 or
 
 ## Installation
 
+Requires Home Assistant 2026.11 or newer.
+
 ### Home Assistant Community Store (recommended)
 
 1. Click the **Open in HACS** button above, or add `https://github.com/KrzysztofHajdamowicz/ha-pid-controller` as a custom repository of type *Integration*.

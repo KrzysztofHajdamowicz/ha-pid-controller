@@ -8,10 +8,10 @@ requires-python = ">=3.14.2"
 dependencies = []
 
 [dependency-groups]
-# pytest-homeassistant-custom-component pins the matching homeassistant
+# pytest-homeassistant pins the matching homeassistant
 # release, so Home Assistant itself is not listed here.
 dev = [
-    "pytest-homeassistant-custom-component==0.13.375",
+    "pytest-homeassistant==2026.11.0",
     "pytest-cov>=7.0",
     "ruff>=0.17",
     "mypy>=1.18",
@@ -84,7 +84,9 @@ testpaths = ["tests"]
 pythonpath = ["."]
 norecursedirs = [".git", "testing_config"]
 asyncio_mode = "auto"
-addopts = "--strict-markers --cov=custom_components --cov-report=term-missing"
+asyncio_default_fixture_loop_scope = "function"
+# Let Home Assistant install its httpx alias before respx is imported.
+addopts = "-p no:respx --strict-markers --cov=custom_components --cov-report=term-missing"
 log_format = "%(asctime)s.%(msecs)03d %(levelname)-8s %(threadName)s %(name)s:%(filename)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 

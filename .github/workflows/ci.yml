@@ -63,7 +63,7 @@ jobs:
         run: uv run python -I scripts/smoke_test.py
 
   test-minimum:
-    name: "Test HA 2026.9 (minimum)"
+    name: "Test HA 2026.11 (minimum)"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -81,7 +81,7 @@ jobs:
       - name: "Install minimum-version test dependencies"
         run: |
           uv venv --python 3.14
-          uv pip install pytest-homeassistant-custom-component==0.13.363
+          uv pip install pytest-homeassistant==2026.11.0 pytest-cov
 
       - name: "Run tests"
         run: |
