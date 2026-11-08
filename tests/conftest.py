@@ -13,7 +13,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.pid_controller.const import (
     CONF_INITIAL_VALUES,
@@ -21,16 +21,9 @@ from custom_components.pid_controller.const import (
     DOMAIN,
 )
 
-pytest_plugins = "pytest_homeassistant_custom_component"
-
 SOURCE = "sensor.pm25"
 NAME = "Air purifier"
 OUTPUT = "sensor.air_purifier"
-
-
-@pytest.fixture(autouse=True)
-def _auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
-    """Enable custom integrations in all tests."""
 
 
 @pytest.fixture

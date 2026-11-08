@@ -63,7 +63,7 @@ jobs:
         run: uv run python -I scripts/smoke_test.py
 
   test-minimum:
-    name: "Test HA 2026.9 (minimum)"
+    name: "Smoke test HA 2026.9 (minimum)"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -76,17 +76,12 @@ jobs:
         with:
           enable-cache: true
 
-      # Keep in sync with "homeassistant" in hacs.json. Entity snapshots depend
-      # on the registry format of the pinned release, so they are skipped here.
-      - name: "Install minimum-version test dependencies"
+      # Keep in sync with "homeassistant" in hacs.json. pytest-homeassistant only
+      # exists from Home Assistant 2026.11 on, so this release gets the smoke test.
+      - name: "Install the minimum Home Assistant release"
         run: |
           uv venv --python 3.14
-          uv pip install pytest-homeassistant-custom-component==0.13.363
-
-      - name: "Run tests"
-        run: |
-          .venv/bin/pytest --durations=10 -p no:cacheprovider --ignore=tests/test_entities.py --cov-fail-under=0
-          ./scripts/check_dirty
+          uv pip install homeassistant==2026.9.0
 
       - name: "Smoke test"
         run: .venv/bin/python -I scripts/smoke_test.py

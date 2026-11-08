@@ -2,9 +2,9 @@
 """
 Smoke test the integration against any installed Home Assistant release.
 
-pytest-homeassistant-custom-component only exists for stable releases, so this
-boots a real Home Assistant instance instead, which also works with betas:
-it creates a controller through the config flow, imports a YAML controller
+pytest-homeassistant only exists from Home Assistant 2026.11 on, so this boots a
+real Home Assistant instance instead, which also works with older releases and
+betas: it creates a controller through the config flow, imports a YAML controller
 and checks that both react to their source sensors.
 """
 
